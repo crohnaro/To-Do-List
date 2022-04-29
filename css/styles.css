@@ -48,6 +48,13 @@ body {
   padding: 20px;
   transition: background-color 400ms ease;
 }
+.wrapper-list ul.list li.removed{
+  animation: collapseItem 300ms ease;
+}
+
+.wrapper-list ul.list li.hidden{
+  display: none;
+}
 
 .wrapper-list ul.list li:hover{
   background-color: #323b5c;
@@ -124,6 +131,15 @@ body {
   font-family: "Roboto Condesed", Arial, Helvetica, sans-serif;
   font-size: 1.2em;
   color: white;
+}
+
+@keyframes collapseItem{
+  0%{
+    transform: rotateX(0deg);
+  }
+  100%{
+    transform: rotateX(-90deg);
+  }
 }
 
 
