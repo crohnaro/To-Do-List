@@ -1,9 +1,18 @@
 const Main = {
+    
+    tasks: [],
+    
     //Evento responsavel por inicializar todos os outros eventos
     init: function(){
         this.cacheSelectors()
         this.bindEvents()
+        this.getStoraged()
+        this.buildTasks()
     },
+    
+    
+    
+    
     //Evento responsavel por amarzenar os dados vindo do html em variaveis
     cacheSelectors: function(){
         this.$checkButtons = document.querySelectorAll('.check')
@@ -11,6 +20,11 @@ const Main = {
         this.$list = document.querySelector('#list')
         this.$removeButtons = document.querySelectorAll('.remove')
     },
+    
+    
+    
+    
+    
     //Evento responsavel por tratar todos eventos de click ou interação do teclado
     bindEvents: function(){
         const self = this
@@ -22,10 +36,50 @@ const Main = {
         this.$inputTask.onkeypress = self.Events.inpuTask_keypress.bind(this)
 
         this.$removeButtons.forEach(function(button){
-            button.onclick = self.Events.removeButton_click
+            button.onclick = self.Events.removeButton_click.bind(self)
         })
         
     },
+
+    
+    
+    
+    //Responsavel por armazenar em Local
+    getStoraged: function(){
+        const tasks = localStorage.getItem('tasks')
+        
+        this.tasks = JSON.parse(tasks)
+    },
+
+
+
+    getTaskHtml: function(task){
+        return `
+        <li>
+            <div class="check"></div>
+                <label class="task">
+                    ${task}
+                </label>
+                <button class="remove" data-task="${task}"></button>
+        </li>
+        `
+    },
+
+
+
+    buildTasks: function(){
+        let html = ''
+        this.tasks.forEach(item =>{
+            html += this.getTaskHtml(item.task)
+            
+            
+        })
+        this.$list.innerHTML = html
+        this.cacheSelectors()
+        this.bindEvents()
+    },
+
+
     //Atributos separados
     Events:{
         checkButton_click: function(e){
@@ -43,23 +97,32 @@ const Main = {
             const value = e.target.value
 
             if (key === 'Enter'){
-                this.$list.innerHTML += `
-                <li>
-                    <div class="check"></div>
-                        <label class="task">
-                            ${value}
-                        </label>
-                        <button class="remove"></button>
-                </li>
-                `
+                this.$list.innerHTML += this.getTaskHtml(value)
                 e.target.value = ''
                 this.cacheSelectors()
                 this.bindEvents()
+                
+                const savedTasks = localStorage.getItem('tasks')
+                const savedTasksObj = JSON.parse(savedTasks)
+
+                const obj = [
+                    {task : value},
+                    ...savedTasksObj,
+                ]
+                localStorage.setItem('tasks', JSON.stringify(obj))
             }
                 
         },
         removeButton_click: function(e){
-            let li = e.target.parentElement
+            const li = e.target.parentElement
+            const value = e.target.dataset['task']
+
+            const newTasksState = this.tasks.filter(item => item.task !== value)
+
+            localStorage.setItem('tasks', JSON.stringify(newTasksState))
+
+            console.log(newTasksState)
+
             li.classList.add('removed')
 
             setTimeout(function(){
